@@ -2,7 +2,11 @@
   color: rgb(255, 0, 191)
 }
 
-.MealPlan h2 {
-  color:blue;
-  text-align: right;
+.MealPlan p {
+  color: green;
+  text-decoration: underline;
+}
+
+.Calendar button {
+  color: red;
 }

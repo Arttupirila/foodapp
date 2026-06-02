@@ -1,14 +1,29 @@
 import { useState } from 'react'
 import './global.css'
+import { useContext } from 'react';
+import { AppContext } from './AppContext';
 
-
-function RecipeSearch({ favorites, setFavorites, setMpRecipes, mpRecipes }) {
+function RecipeSearch() {
+    const { favorites, setFavorites, mpRecipes, setMpRecipes, setRecipeDetails, recipeDetails } =
+    useContext(AppContext);
   const [recipes, setRecipes] = useState([])
   const [query, setQuery] = useState('')
   const [selectedRecipe, setSelectedRecipe] = useState(null)
   const [loading, setLoading] = useState(false)
   const [sorting, setSorting] = useState('default')
   const apiKey = import.meta.env.VITE_API_KEY
+  
+
+  function inFavorites(title) {
+  const stored = JSON.parse(localStorage.getItem("favorites")) || [];
+
+  return stored.some(item => item[1] === title);
+}
+ function inMp(title) {
+  const stored = JSON.parse(localStorage.getItem("mpRecipes")) || [];
+
+  return stored.some(item => item[1] === title);
+}
 
   // 🔍 Search recipes
   const searchRecipes = async (e) => {
@@ -60,6 +75,14 @@ function RecipeSearch({ favorites, setFavorites, setMpRecipes, mpRecipes }) {
 
       const data = await res.json()
       setSelectedRecipe(data)
+      const key = data.title
+      const updatedDetails = {
+        ...recipeDetails,
+        [key]: data
+      }
+      console.log(updatedDetails)
+      setRecipeDetails(updatedDetails)
+      localStorage.setItem("recipeDetails", JSON.stringify(updatedDetails))
     } catch (error) {
       console.error('Details error:', error)
     } finally {
@@ -152,8 +175,12 @@ const addToMp = (img, title) => {
           <button onClick={() => setSelectedRecipe(null)}>Hide Details</button>
           {" "}
           
-          <button onClick={() => saveFavorites(selectedRecipe.image, selectedRecipe.title)}>Add recipe to Favorites</button>
-          <button onClick={() => addToMp(selectedRecipe.image, selectedRecipe.title)}>Add recipe to meal plan section</button>
+          <button onClick={() => saveFavorites(selectedRecipe.image, selectedRecipe.title) }>
+            {inFavorites(selectedRecipe.title)? "Recipe added to favorites!" : "Add recipe to favorites"}
+            </button>
+          <button onClick={() => addToMp(selectedRecipe.image, selectedRecipe.title)}>
+            {inMp(selectedRecipe.title)? "Recipe added to meal plan section!" : "Add recipe to meal plan section"}
+            </button>
           <h3>{selectedRecipe.title}</h3>
           <img
             src={selectedRecipe.image}
