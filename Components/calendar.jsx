@@ -9,12 +9,6 @@ const { draggedRecipe, setDraggedRecipe, droppedRecipes, setDroppedRecipes } =
     useContext(AppContext);
   
   
-
-  function handleOverSlot(e) {
-    e.preventDefault()
-    console.log("item currently over slot")
-    
-  }
   function handleDropSlot(week, day) {
   const key = `week-${week}-day-${day}`
 
@@ -112,7 +106,6 @@ console.log("item dropped into slot")
 
   return (
     <div  
-      onDragOver={handleOverSlot}
       onDrop={() => handleDropSlot(week, day)}
       className="slots"
       key={key}

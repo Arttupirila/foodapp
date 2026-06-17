@@ -14,6 +14,32 @@ function RecipeSearch() {
   const apiKey = import.meta.env.VITE_API_KEY
   
 
+
+
+  async function addFavorite(img, title) {
+      await fetch("http://localhost:3000/favorites", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      favorite: [img, title]
+    })
+  });
+}
+
+ async function addMp(img, title) {
+      await fetch("http://localhost:3000/mps", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      mp: [img, title]
+    })
+  });
+}
+
   function inFavorites(title) {
   const stored = JSON.parse(localStorage.getItem("favorites")) || [];
 
@@ -175,10 +201,10 @@ const addToMp = (img, title) => {
           <button onClick={() => setSelectedRecipe(null)}>Hide Details</button>
           {" "}
           
-          <button onClick={() => saveFavorites(selectedRecipe.image, selectedRecipe.title) }>
+          <button onClick={() => addFavorite(selectedRecipe.image, selectedRecipe.title) }>
             {inFavorites(selectedRecipe.title)? "Recipe added to favorites!" : "Add recipe to favorites"}
             </button>
-          <button onClick={() => addToMp(selectedRecipe.image, selectedRecipe.title)}>
+          <button onClick={() => addMp(selectedRecipe.image, selectedRecipe.title)}>
             {inMp(selectedRecipe.title)? "Recipe added to meal plan section!" : "Add recipe to meal plan section"}
             </button>
           <h3>{selectedRecipe.title}</h3>

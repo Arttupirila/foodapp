@@ -1,39 +1,85 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./AppContext";
-import { useState } from "react";
+
 function FavoriteRecipes() {
 
   const [showing, setShowing] = useState(null)
- const { favorites, setFavorites, recipeDetails, setMpRecipes, mpRecipes, entry, setEntry } =
+  const [favs, setFavs] = useState([])
+ const {recipeDetails, setMpRecipes, mpRecipes, entry, setEntry } =
     useContext(AppContext);
   
-     const deleteFavorites = (indexToRemove) => {
-  const updatedFavorites = favorites.filter((_, index) => index !== indexToRemove);
-  setFavorites(updatedFavorites);
-  localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-};
+    
 
-const addToMp = (img, title) => {
-  const newMp = [img, title]
-
-  const updatedMp = [...mpRecipes, newMp]
-
-  setMpRecipes(updatedMp)
-  localStorage.setItem("mpRecipes", JSON.stringify(updatedMp))
+async function addMp(img, title) {
+      await fetch("http://localhost:3000/mps", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      mp: [img, title]
+    })
+  });
 }
 
-const addToShoppingList = (name) => {
-  const updatedEntries = [...entry,
-            name
-        ]
-        setEntry(updatedEntries)
-        localStorage.setItem("shoppingList", JSON.stringify(updatedEntries))
+async function addToShoppingList(name)  {
+await fetch("http://localhost:3000/shoppinglist", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      item: name
+    })
+    
+  })
+  .then((response) => response.json())
+  .then((data) => {
+  setEntry(data.items || [])
+  });
 }
 
+  async function removeFavorites(title) {
+     try {
+      const response = await fetch("http://localhost:3000/favorites", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      })
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
+      const data = await response.json()
+      setFavs(data.favorites || [])
+      console.log(data.favorites)
+    } catch (err) {
+      console.error("Error:", err)
+    }
+  }
+  
 
+  async function fetchFavorites() {
+    try {
+      const response = await fetch("http://localhost:3000/favorites", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
+      const data = await response.json()
+      setFavs(data.favorites || [])
+      console.log(data.favorites)
+    } catch (err) {
+      console.error("Error loading favorites:", err)
+    }
+  }
 
-    const favs = favorites || []
-    console.log(favs)
+  useEffect(() => {
+     fetchFavorites()
+  }, [])
     return(
         <div>
         <div>
@@ -41,12 +87,13 @@ const addToShoppingList = (name) => {
         <ul>
            {favs.map((favorite, index) => (
   <li key={index}>
-    {favorite[1]}
-    <button onClick={() => deleteFavorites(index)}>Remove</button>
-    <button onClick={()=>setShowing(favorite[1])}>View details</button>
-    <button onClick={()=>addToMp(favorite[0], favorite[1])}>Add to meal plan screen</button>
+    {console.log(favs)}
+    {favorite.title}
+    <button onClick={() => removeFavorites(favorite.title)}>Remove</button>
+    <button onClick={()=>setShowing(favorite.title)}>View details</button>
+    <button onClick={()=>addMp(favorite.image, favorite.title)}>Add to meal plan screen</button>
     <br />
-    <img src={favorite[0]} width="200" height="100" />
+    <img src={favorite.image} width="200" height="100" />
   </li>
 ))}
 

@@ -1,33 +1,67 @@
 import Calendar from '/Components/Calendar.jsx'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useContext } from 'react'
 import { AppContext } from './AppContext'
 
 function MealPlan() {
-
+  const [mps, setMps] = useState([])
   const { setMpRecipes, mpRecipes, draggedRecipe, setDraggedRecipe, droppedRecipes, setDroppedRecipes, recipeDetails, favorites, setFavorites, entry, setEntry } =
     useContext(AppContext);
 const [showing, setShowing] = useState(null)
-function handleDragStart(e) {
-  console.log("drag started")
+
+function handleDragStart(name) {
+  console.log("drag started (" + name + ")")
+  setDraggedRecipe(name)
 }
 
-const addToShoppingList = (name) => {
-  const updatedEntries = [...entry,
-            name
-        ]
-        setEntry(updatedEntries)
-        localStorage.setItem("shoppingList", JSON.stringify(updatedEntries))
+ async function addFavorite(img, title) {
+      await fetch("http://localhost:3000/favorites", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      favorite: [img, title]
+    })
+  });
 }
 
-  const saveFavorites = (img, title) => {
-  const newFavorite = [img, title];
+async function fetchMps() {
+    try {
+      const response = await fetch("http://localhost:3000/mps", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
+      const data = await response.json()
+      setMps(data.mps || [])
+      console.log(data.mps)
+    } catch (err) {
+      console.error("Error loading mps:", err)
+    }
+  }
 
-  const updatedFavorites = [...favorites, newFavorite];
+async function addToShoppingList(name)  {
+await fetch("http://localhost:3000/shoppinglist", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      item: name
+    })
+    
+  })
+  .then((response) => response.json())
+  .then((data) => {
+  setEntry(data.items || [])
+  });
+}
 
-  setFavorites(updatedFavorites);
-  localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-};
+
+ 
 
 function handleDragEnd(e) {
   console.log("drag ended")
@@ -35,19 +69,32 @@ function handleDragEnd(e) {
   console.log(droppedRecipes)
   localStorage.setItem("plannedMeals", JSON.stringify(droppedRecipes)) //LOCAL STORAGE SET
 }
-function handleDrag(name) {
-  console.log("currently dragging " + name)
-  setDraggedRecipe(name)
-  
-}
 
-      const deleteFromMP = (indexToRemove) => {
-  const updatedMp = mpRecipes.filter((_, index) => index !== indexToRemove);
-  setMpRecipes(updatedMp);
-  localStorage.setItem("mpRecipes", JSON.stringify(updatedMp));
-};
-const mps = mpRecipes || []
-console.log(mps)
+
+       async function removeMps(title) {
+     try {
+      const response = await fetch("http://localhost:3000/mps", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      })
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
+      const data = await response.json()
+      setMps(data.mps || [])
+      console.log(data.mps)
+    } catch (err) {
+      console.error("Error:", err)
+    }
+  }
+
+ useEffect(() => {
+     fetchMps()
+  }, [])
+
     return(
         <div className="MealPlan">
         <div>
@@ -55,11 +102,11 @@ console.log(mps)
         <ul>
            {mps.map((mp, index) => (
   <li key={index}>
-    <p onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDrag={()=>handleDrag(mp[1])}draggable="true">{mp[1]}</p>
-    <button onClick={() => deleteFromMP(index)}>Remove</button>
+    <p onDragStart={()=>handleDragStart(mp.title)} onDragEnd={handleDragEnd} draggable="true">{mp.title}</p>
+    <button onClick={() => removeMps(mp.title)}>Remove</button>
 
-    <button onClick={()=> setShowing(mp[1])}>Show details</button>
-    <button onClick={() => saveFavorites(mp[0], mp[1])}>Add to favorites</button>
+    <button onClick={()=> setShowing(mp.title)}>Show details</button>
+    <button onClick={() => addFavorite(mp.image, mp.title)}>Add to favorites</button>
 
  
   </li>
