@@ -17,10 +17,12 @@ function RecipeSearch() {
 
 
   async function addFavorite(img, title) {
+    const token = localStorage.getItem("token");
       await fetch("http://localhost:3000/favorites", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       favorite: [img, title]
@@ -29,10 +31,12 @@ function RecipeSearch() {
 }
 
  async function addMp(img, title) {
+  const token = localStorage.getItem("token");
       await fetch("http://localhost:3000/mps", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       mp: [img, title]
@@ -53,6 +57,7 @@ function RecipeSearch() {
 
   // 🔍 Search recipes
   const searchRecipes = async (e) => {
+    
     e.preventDefault()
     console.log(e.target)
     setSelectedRecipe(null)
@@ -115,24 +120,6 @@ function RecipeSearch() {
       setLoading(false)
     }
   }
-
- const saveFavorites = (img, title) => {
-  const newFavorite = [img, title];
-
-  const updatedFavorites = [...favorites, newFavorite];
-
-  setFavorites(updatedFavorites);
-  localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-};
-
-const addToMp = (img, title) => {
-  const newMp = [img, title]
-
-  const updatedMp = [...mpRecipes, newMp]
-
-  setMpRecipes(updatedMp)
-  localStorage.setItem("mpRecipes", JSON.stringify(updatedMp))
-}
 
 
   return (

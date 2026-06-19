@@ -11,10 +11,12 @@ function FavoriteRecipes() {
     
 
 async function addMp(img, title) {
+      const token = localStorage.getItem("token");
       await fetch("http://localhost:3000/mps", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       mp: [img, title]
@@ -23,10 +25,12 @@ async function addMp(img, title) {
 }
 
 async function addToShoppingList(name)  {
+  const token = localStorage.getItem("token");
 await fetch("http://localhost:3000/shoppinglist", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       item: name
@@ -40,11 +44,13 @@ await fetch("http://localhost:3000/shoppinglist", {
 }
 
   async function removeFavorites(title) {
+    const token = localStorage.getItem("token");
      try {
       const response = await fetch("http://localhost:3000/favorites", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
           title: title
@@ -61,11 +67,13 @@ await fetch("http://localhost:3000/shoppinglist", {
   
 
   async function fetchFavorites() {
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch("http://localhost:3000/favorites", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
       })
       if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)

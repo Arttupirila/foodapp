@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import dotenv from "dotenv";
 import connectDB from "../helpers/db.js";
-
-const SECRET = process.env.JWT_SECRET || "your_secret_key";
+dotenv.config();
+const SECRET = process.env.JWT_SECRET 
 
 const postRegister = async (req, res) => {
     const {email, password} = req.body

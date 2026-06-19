@@ -1,5 +1,5 @@
 import React, { useContext } from "react"; 
-import { AppContext } from "../src/Screens/AppContext";
+import { AppContext } from "../Screens/AppContext";
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const weeks = [1, 2, 3, 4];
 
@@ -9,15 +9,27 @@ const { draggedRecipe, setDraggedRecipe, droppedRecipes, setDroppedRecipes } =
     useContext(AppContext);
   
   
-  function handleDropSlot(week, day) {
-  const key = `week-${week}-day-${day}`
+   function handleDropSlot(event, week, day) {
+    event.preventDefault()
 
-  setDroppedRecipes(prev => ({
-    ...prev,
-    [key]: [...(prev[key] || []), draggedRecipe]
-  }
-))
-console.log("item dropped into slot")
+    const key = `week-${week}-day-${day}`
+    const recipe = draggedRecipe || event.dataTransfer.getData("text/plain")
+
+    if (!recipe) {
+      return
+    }
+
+    setDroppedRecipes(prev => {
+      const updatedRecipes = {
+        ...prev,
+        [key]: [...(prev[key] || []), recipe]
+      }
+
+      localStorage.setItem("plannedMeals", JSON.stringify(updatedRecipes))
+      return updatedRecipes
+    })
+
+  console.log("item dropped into slot")
 }
 
  function handleRemove(week, day, recipe) {
@@ -106,7 +118,8 @@ console.log("item dropped into slot")
 
   return (
     <div  
-      onDrop={() => handleDropSlot(week, day)}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => handleDropSlot(event, week, day)}
       className="slots"
       key={key}
     >

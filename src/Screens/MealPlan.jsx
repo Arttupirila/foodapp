@@ -1,4 +1,4 @@
-import Calendar from '/Components/Calendar.jsx'
+import Calendar from '../Components/Calendar' 
 import { useState, useEffect } from 'react'
 import { useContext } from 'react'
 import { AppContext } from './AppContext'
@@ -9,16 +9,19 @@ function MealPlan() {
     useContext(AppContext);
 const [showing, setShowing] = useState(null)
 
-function handleDragStart(name) {
+function handleDragStart(event, name) {
   console.log("drag started (" + name + ")")
+  event.dataTransfer.setData("text/plain", name)
   setDraggedRecipe(name)
 }
 
  async function addFavorite(img, title) {
+     const token = localStorage.getItem("token");
       await fetch("http://localhost:3000/favorites", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       favorite: [img, title]
@@ -27,11 +30,13 @@ function handleDragStart(name) {
 }
 
 async function fetchMps() {
+  const token = localStorage.getItem("token");
     try {
       const response = await fetch("http://localhost:3000/mps", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+           "Authorization": `Bearer ${token}`
         },
       })
       if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
@@ -44,10 +49,12 @@ async function fetchMps() {
   }
 
 async function addToShoppingList(name)  {
+  const token = localStorage.getItem("token");
 await fetch("http://localhost:3000/shoppinglist", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
       item: name
@@ -66,17 +73,17 @@ await fetch("http://localhost:3000/shoppinglist", {
 function handleDragEnd(e) {
   console.log("drag ended")
   setDraggedRecipe("")
-  console.log(droppedRecipes)
-  localStorage.setItem("plannedMeals", JSON.stringify(droppedRecipes)) //LOCAL STORAGE SET
 }
 
 
        async function removeMps(title) {
+        const token = localStorage.getItem("token");
      try {
       const response = await fetch("http://localhost:3000/mps", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
           title: title
@@ -102,7 +109,7 @@ function handleDragEnd(e) {
         <ul>
            {mps.map((mp, index) => (
   <li key={index}>
-    <p onDragStart={()=>handleDragStart(mp.title)} onDragEnd={handleDragEnd} draggable="true">{mp.title}</p>
+    <p onDragStart={()=>handleDragStart(event, mp.title)} onDragEnd={handleDragEnd} draggable="true">{mp.title}</p>
     <button onClick={() => removeMps(mp.title)}>Remove</button>
 
     <button onClick={()=> setShowing(mp.title)}>Show details</button>

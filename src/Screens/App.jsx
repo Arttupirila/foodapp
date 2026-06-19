@@ -4,7 +4,7 @@ import RecipeSearch from './RecipeSearch.jsx'
 import FavoriteRecipes from './FavoriteRecipes.jsx'
 import Home from './Home.jsx'
 import MealPlan from './MealPlan.jsx'
-import Calendar from '/Components/Calendar.jsx'
+import Calendar from '../Components/Calendar' 
 import ShoppingList from './ShoppingList.jsx'
 import { AppContext } from "./AppContext.js";
 import { useState } from "react";
@@ -15,6 +15,7 @@ function App() {
     const [droppedRecipes, setDroppedRecipes] = useState(JSON.parse(localStorage.getItem("plannedMeals")) || {})
     const [recipeDetails, setRecipeDetails] = useState(JSON.parse(localStorage.getItem("recipeDetails")) || {})
     const [entry, setEntry] = useState(JSON.parse(localStorage.getItem("shoppingList")) || [])
+    const [loggedIn, setLoggedIn] = useState(false)
     return (
          <AppContext.Provider
       value={{
@@ -29,7 +30,9 @@ function App() {
         recipeDetails,
         setRecipeDetails,
         entry,
-        setEntry
+        setEntry,
+        loggedIn,
+        setLoggedIn
       }}
     >
        <BrowserRouter>

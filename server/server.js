@@ -15,29 +15,29 @@ app.use(cors());
 
 
 
-app.post("/register", postRegister)
-app.post("/login", postLogin)
+app.post("/register", authMiddleware, postRegister)
+app.post("/login", authMiddleware, postLogin)
 
 //-------------------------------------------------------------
-app.post('/favorites', postFavorites)
+app.post('/favorites', authMiddleware, postFavorites)
 
-app.get('/favorites', getFavorites);
+app.get('/favorites', authMiddleware, getFavorites);
 
-app.delete('/favorites', deleteFavorites)
+app.delete('/favorites', authMiddleware, deleteFavorites)
 
 //-----------------------------------------------------------------------------
 
-app.post('/mps', postMp)
+app.post('/mps', authMiddleware, postMp)
 
-app.get('/mps', getMp);
+app.get('/mps', authMiddleware, getMp);
 
-app.delete('/mps', deleteMp)
+app.delete('/mps', authMiddleware, deleteMp)
 
 //------------------------------------------------------------------------------
 
-app.post('/shoppinglist', postShoppinglist)
+app.post('/shoppinglist', authMiddleware, postShoppinglist)
 
-app.get('/shoppinglist', getShoppinglist);
+app.get('/shoppinglist', authMiddleware, getShoppinglist);
 
-app.delete('/shoppinglist', deleteShoppinglist)
+app.delete('/shoppinglist', authMiddleware, deleteShoppinglist)
 app.listen(3000);

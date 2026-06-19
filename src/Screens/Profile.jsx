@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function Profile() {
 
-      const [email, setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
    async function fetchRegister(e) {
@@ -16,19 +16,25 @@ function Profile() {
   }
 
 
-async function fetchLogin(email, password) { 
-  const res = await fetch("http://localhost:3000/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    email: "test@test.com",
-    password: "123456"
-  })
-})
-}
+async function fetchLogin(e) {
+    e.preventDefault();
+    try {
+    const response = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+    if (!response.ok) throw new Error(`Fetch failed: ${response.status}`)
+    const data = await response.json()
+    console.log(data.token)
+    localStorage.setItem("token", data.token)
+} catch (err) {
+      console.error("Error:", err)
+    }
+  }
 
      return (
-    <form onSubmit={fetchRegister}>
+    <form onSubmit={fetchLogin}>
       <input
         type="text"
         id="email"
@@ -45,7 +51,7 @@ async function fetchLogin(email, password) {
         onChange={(e) => setPassword(e.target.value)}
       />
       <br />
-      <input type="submit" value="Register" />
+      <input type="submit" value="Login" />
     </form>
   );
 }
